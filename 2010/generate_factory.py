@@ -1,5 +1,5 @@
 import itertools
-itertools.permutations([1,2,3])
+import sys
 
 def label(i, x = -1):
     if i == x :
@@ -20,3 +20,12 @@ def generate( ls, x):
         res += ':' if (n+2) == len_ls else ','
         print res
     print label( x)
+
+
+SIZE = int( sys.argv[1] ) * 2
+
+for ls in itertools.permutations( range(SIZE) ):
+    for x in range(SIZE):
+        print "======="
+        generate( ls, x )
+print "======="
