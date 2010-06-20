@@ -51,7 +51,7 @@ def submit_fuel_repeat(cookie, text):
     try:
         return (cookie,submit_fuel(cookie, text))
     except:
-        sleep(60)
+        time.sleep(60)
         cookie = login()
         return submit_fuel_repeat(cookie,txt)
 
@@ -78,13 +78,13 @@ if __name__ == "__main__":
     for size in range(20):
         size = size*2
         if fasf_forward:
-            if size < 6:
+            if size < 8:
                 continue
         gen = 0
         for ls in itertools.permutations( range(size) ):
             for x in range(size):
                 if fasf_forward:
-                    if gen < 3691 :
+                    if gen < 1305 :
                         gen+=1
                         continue
                     else:
