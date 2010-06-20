@@ -10,22 +10,27 @@ def label(i, x = -1):
 def generate( ls, x):
     len_ls = len(ls)
     assert ( len_ls % 2 == 0 )
-    print label(ls.index(x)) + ':'
+    res = label(ls.index(x)) + ':' + '\n'
     for i in range( len_ls / 2 ):
         n = 2*i
-        res = label( ls[n], x) + label( ls[n+1] , x)
+        res += label( ls[n], x) + label( ls[n+1] , x)
         res += "0#"
         res += 'X' if x == n   else label( ls.index(n))
         res += 'X' if x == n+1 else label( ls.index(n+1))
         res += ':' if (n+2) == len_ls else ','
-        print res
-    print label( x)
+        res += '\n'
+    res += label( x)
+    return res
 
 
-SIZE = int( sys.argv[1] ) * 2
 
-for ls in itertools.permutations( range(SIZE) ):
-    for x in range(SIZE):
-        print "======="
-        generate( ls, x )
-print "======="
+
+if __name__ == "__main__":
+    SIZE = int( sys.argv[1] ) * 2
+
+    for ls in itertools.permutations( range(SIZE) ):
+        for x in range(SIZE):
+            print "======="
+            print generate( ls, x )
+
+

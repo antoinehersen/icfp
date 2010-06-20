@@ -43,23 +43,38 @@ def submit_fuel( cookie, text):
                 "Content-type": "application/x-www-form-urlencoded",
                 "Accept": "text/plain"}
 
-# conn = httplib.HTTPConnection("icfpcontest.org")
-
     req = urllib2.Request(url, data, headers)
     response = urllib2.urlopen(req)
     return response
-# the_page = response.read()
-# response.info().items()
 
+def get_ouptut( txt):
+    p = re.compile('[012]{17}')
+    m = p.search( txt)
+    c =  m.group()
+    return c
 
-# import Cookie
-# C = Cookie.SmartCookie()
-# C["JSESSIONID"] = "04C65D0779CF9776F64476D7452C5C0F"
+def is_illegal_prefix( txt):
+    p = re.compile("this is an illegal prefix")
+    m = p.search( txt)
+    return False if m == None else True
 
-# print C.output(header="")
+if __name__ == "__main__":
+    import generate_factory
 
-
-# import urllib
-# import urllib2
-
-
+    cookie = login()
+    for size in range(20):
+        gen = 0
+        for ls in itertools.permutations( range(size) ):
+            for x in range(size):
+                factory = generate( ls, x )
+                res = submit_fuel( cookie, factory)
+                txt = res.read()
+                prefix = get_ouptut(txt)
+                print "{gen},{ls},{x},{prefix}".format(gen=gen,
+                                                       ls=ls,
+                                                       x=x,
+                                                       prefix=prefix)
+                gen +=1
+                if !is_illegal_prefix(txt):
+                    print txt
+                    exit()
