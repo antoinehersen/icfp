@@ -1,4 +1,12 @@
 import urllib,urllib2, httplib
+import re
+
+# jsessionid=5D6B7B9BE37C052D6FA80F02154D5192
+def get_cookie( txt):
+    p = re.compile('jsessionid=[A-Z0-9]*')
+    m = p.search( txt)
+    c =  m.group()
+    return c.split('=')[1]
 
 #Your Username: invalidmonkey
 #Your password: 646428484954362363341124703581428857738992086448891824536895
@@ -18,25 +26,28 @@ def login():
                 "Accept": "text/plain"}
     req = urllib2.Request(url, data, headers)
     response = urllib2.urlopen(req)
-    return response
 
+    txt = response.read()
+    return get_cookie( txt)
 
-text = "0L:\n1R1L0#X1R,\nX0R0#0R0L:\n0L"
-parameters = {'contents' : text}
-data = urllib.urlencode( parameters)
+a_text = "1L:\n1R1L0#X1R,\nX0R0#0R0L:\n0L"
 
-url = "http://icfpcontest.org/icfp10/instance/219/solve"
+def submit_fuel( cookie, text):
+    parameters = {'contents' : text}
+    data = urllib.urlencode( parameters)
 
-
-headers = { 'User-Agent' : user_agent,
-            'Cookie' : "JSESSIONID=04C65D0779CF9776F64476D7452C5C0F",
-            "Content-type": "application/x-www-form-urlencoded",
-            "Accept": "text/plain"}
+    cookie = "JSESSIONID=" + cookie
+    url = "http://icfpcontest.org/icfp10/instance/219/solve"
+    headers = { 'User-Agent' : user_agent,
+                'Cookie' : cookie,
+                "Content-type": "application/x-www-form-urlencoded",
+                "Accept": "text/plain"}
 
 # conn = httplib.HTTPConnection("icfpcontest.org")
 
-req = urllib2.Request(url, data, headers)
-# response = urllib2.urlopen(req)
+    req = urllib2.Request(url, data, headers)
+    response = urllib2.urlopen(req)
+    return response
 # the_page = response.read()
 # response.info().items()
 
