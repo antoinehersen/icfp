@@ -64,13 +64,24 @@ import time
 
 if __name__ == "__main__":
 
+    fasf_forward = True
 
     cookie =  login()
     for size in range(20):
         size = size*2
+        if fasf_forward:
+            if size < 6:
+                continue
         gen = 0
         for ls in itertools.permutations( range(size) ):
             for x in range(size):
+                if fasf_forward:
+                    if gen < 2142:
+                        gen+=1
+                        continue
+                    else:
+                        fasf_forward = False
+
 #                print "----"
  #               time.sleep(1)
                 factory = gf.generate( ls, x )
