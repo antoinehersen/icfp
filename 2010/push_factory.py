@@ -58,15 +58,22 @@ def is_illegal_prefix( txt):
     m = p.search( txt)
     return False if m == None else True
 
-if __name__ == "__main__":
-    import generate_factory
+import generate_factory as gf
+import itertools
+import time
 
-    cookie = login()
+if __name__ == "__main__":
+
+
+    cookie =  login()
     for size in range(20):
+        size = size*2
         gen = 0
         for ls in itertools.permutations( range(size) ):
             for x in range(size):
-                factory = generate( ls, x )
+#                print "----"
+ #               time.sleep(1)
+                factory = gf.generate( ls, x )
                 res = submit_fuel( cookie, factory)
                 txt = res.read()
                 prefix = get_ouptut(txt)
@@ -75,6 +82,6 @@ if __name__ == "__main__":
                                                        x=x,
                                                        prefix=prefix)
                 gen +=1
-                if !is_illegal_prefix(txt):
+                if not is_illegal_prefix(txt):
                     print txt
                     exit()
