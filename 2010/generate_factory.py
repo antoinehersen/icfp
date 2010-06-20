@@ -26,11 +26,12 @@ def generate( ls, x):
 
 
 if __name__ == "__main__":
-    SIZE = int( sys.argv[1] ) * 2
+    if len(sys.argv) > 1:
+        SIZE = int( sys.argv[1] ) * 2
 
-    for ls in itertools.permutations( range(SIZE) ):
-        for x in range(SIZE):
-            print "======="
-            print generate( ls, x )
+        for ls in itertools.permutations( range(SIZE) ):
+            for x in range(SIZE):
+                print "======="
+                print generate( ls, x )
 
 

@@ -47,6 +47,14 @@ def submit_fuel( cookie, text):
     response = urllib2.urlopen(req)
     return response
 
+def submit_fuel_repeat(cookie, text):
+    try:
+        return (cookie,submit_fuel(cookie, text))
+    except:
+        sleep(60)
+        cookie = login()
+        return submit_fuel_repeat(cookie,txt)
+
 def get_ouptut( txt):
     p = re.compile('[012]{17}')
     m = p.search( txt)
@@ -76,7 +84,7 @@ if __name__ == "__main__":
         for ls in itertools.permutations( range(size) ):
             for x in range(size):
                 if fasf_forward:
-                    if gen < 2142:
+                    if gen < 3691 :
                         gen+=1
                         continue
                     else:
@@ -85,7 +93,7 @@ if __name__ == "__main__":
 #                print "----"
  #               time.sleep(1)
                 factory = gf.generate( ls, x )
-                res = submit_fuel( cookie, factory)
+                (cookie, res)  = submit_fuel_repeat( cookie, factory)
                 txt = res.read()
                 prefix = get_ouptut(txt)
                 print "{gen},{ls},{x},{prefix}".format(gen=gen,
