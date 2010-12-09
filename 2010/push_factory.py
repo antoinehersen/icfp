@@ -11,6 +11,7 @@ def get_cookie( txt):
 #Your Username: invalidmonkey
 #Your password: 646428484954362363341124703581428857738992086448891824536895
 # JSESSIONID=04C65D0779CF9776F64476D7452C5C0F
+# http://google.com
 
 user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
 
