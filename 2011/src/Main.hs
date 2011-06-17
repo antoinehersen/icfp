@@ -1,7 +1,11 @@
 module Main (main) where
 
 import System.Environment (getArgs)
-import System.IO (hFlush, stdout)
+import System.IO (hFlush, stdout, isEOF)
+
+import Cards
+import Actions
+
 
 readOpponent = do
   application_side <- getLine
@@ -26,24 +30,27 @@ playMovePutZero = do
   putStrLn "0"
   putStrLn "zero"
 
-playDummy = do
-  putStrLn "1"
-  putStrLn "I"
-  putStrLn "0"
+playDummy = playMove idleMove
 
 
-playLoop = do
-  playDummy
+-- TODO add handling of end of file using isEOF
+doTurn move = do
+  playMove move
   hFlush stdout -- ! important std are buffered
   readOpponent
-  playLoop
+
+playLoop :: [Move] -> IO ()
+playLoop moves = mapM_ doTurn (moves ++ (repeat idleMove))
+
 
 
 main = do
   [player_id] <- getArgs
+  let strategy  = repeat idleMove
+
   case player_id of
-    "0" -> playLoop
+    "0" -> playLoop strategy
     "1" -> do readOpponent
-              playLoop
+              playLoop strategy
     _ -> fail $ "Invalid player id: " ++ player_id
 
