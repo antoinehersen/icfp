@@ -1,10 +1,11 @@
 module Main (main) where
 
 import System.Environment (getArgs)
-import System.IO (hFlush, stdout, isEOF)
+import System.IO (hFlush, stdout)
 
 import Cards
 import Actions
+import Strategies
 
 
 readOpponent = do
@@ -20,15 +21,7 @@ readOpponent = do
       return (application_side, card_name, slot_ix)
     _ -> fail $ "Invalid application side " ++ application_side
 
-playMovePutDec = do
-  putStrLn "2"
-  putStrLn "0"
-  putStrLn "dec"
 
-playMovePutZero = do
-  putStrLn "2"
-  putStrLn "0"
-  putStrLn "zero"
 
 playDummy = playMove idleMove
 
@@ -46,7 +39,7 @@ playLoop moves = mapM_ doTurn (moves ++ (repeat idleMove))
 
 main = do
   [player_id] <- getArgs
-  let strategy  = repeat idleMove
+  let strategy = strategySimpleAttack
 
   case player_id of
     "0" -> playLoop strategy
