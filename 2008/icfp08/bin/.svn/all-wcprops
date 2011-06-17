@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/icfpc2008/!svn/ver/86/icfp08/bin
+END
+run
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/icfpc2008/!svn/ver/86/icfp08/bin/run
+END
+install
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/icfpc2008/!svn/ver/86/icfp08/bin/install
+END

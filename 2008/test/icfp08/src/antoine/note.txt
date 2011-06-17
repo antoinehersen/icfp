@@ -1,0 +1,5 @@
+Set line bufferng :
+
+h <- connectTo host port
+ hSetBuffering h LineBuffering
+

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/OpenGL
+END
+test.hs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/OpenGL/test.hs
+END
+bsdSocket.hs
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/OpenGL/bsdSocket.hs
+END

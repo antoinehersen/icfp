@@ -1,0 +1,4 @@
+#!/bin/sh
+cd ./src/v2/
+ghc -O3 --make Main.hs
+

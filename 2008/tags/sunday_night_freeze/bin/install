@@ -1,0 +1,4 @@
+#!/bin/sh
+cd ./src/pierre/
+ghc -O3 --make bsdSocket.hs
+

@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/antoine
+END
+note.txt
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/antoine/note.txt
+END
+stream_test.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/antoine/stream_test.sh
+END
+split.hs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/antoine/split.hs
+END
+bsdSocket.hs
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/antoine/bsdSocket.hs
+END
+random_int_stream.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/antoine/random_int_stream.py
+END

@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/icfpc2008/!svn/ver/29/icfp08/src/antoine
+END
+note.txt
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/icfpc2008/!svn/ver/7/icfp08/src/antoine/note.txt
+END
+stream_test.sh
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/icfpc2008/!svn/ver/17/icfp08/src/antoine/stream_test.sh
+END
+split.hs
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/icfpc2008/!svn/ver/17/icfp08/src/antoine/split.hs
+END
+bsdSocket.hs
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/icfpc2008/!svn/ver/29/icfp08/src/antoine/bsdSocket.hs
+END
+random_int_stream.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/icfpc2008/!svn/ver/14/icfp08/src/antoine/random_int_stream.py
+END

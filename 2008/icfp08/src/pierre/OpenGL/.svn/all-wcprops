@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/icfpc2008/!svn/ver/50/icfp08/src/pierre/OpenGL
+END
+test.hs
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/icfpc2008/!svn/ver/50/icfp08/src/pierre/OpenGL/test.hs
+END
+bsdSocket.hs
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/icfpc2008/!svn/ver/43/icfp08/src/pierre/OpenGL/bsdSocket.hs
+END

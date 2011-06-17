@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/stream
+END
+Viz.hs
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/stream/Viz.hs
+END
+MapManagement.hs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/stream/MapManagement.hs
+END
+CraterDirection.hs
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/stream/CraterDirection.hs
+END
+ParseMsg.hs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/stream/ParseMsg.hs
+END
+SteeringUtils.hs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/stream/SteeringUtils.hs
+END
+Main.hs
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/stream/Main.hs
+END

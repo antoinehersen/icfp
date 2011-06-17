@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/icfpc2008/!svn/ver/92/icfp08/src/v2
+END
+Viz.hs
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/icfpc2008/!svn/ver/86/icfp08/src/v2/Viz.hs
+END
+MapManagement.hs
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/icfpc2008/!svn/ver/86/icfp08/src/v2/MapManagement.hs
+END
+CraterDirection.hs
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/icfpc2008/!svn/ver/93/icfp08/src/v2/CraterDirection.hs
+END
+ParseMsg.hs
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/icfpc2008/!svn/ver/89/icfp08/src/v2/ParseMsg.hs
+END
+SteeringUtils.hs
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/icfpc2008/!svn/ver/93/icfp08/src/v2/SteeringUtils.hs
+END
+Main.hs
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/icfpc2008/!svn/ver/93/icfp08/src/v2/Main.hs
+END

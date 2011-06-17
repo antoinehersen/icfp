@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre
+END
+MapManagement.hs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/MapManagement.hs
+END
+CraterDirection.hs
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/CraterDirection.hs
+END
+ParseMsg.hs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/ParseMsg.hs
+END
+SteeringUtils.hs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/SteeringUtils.hs
+END
+bsdSocket.hs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/bsdSocket.hs
+END
+MainTest.hs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/MainTest.hs
+END
+BasicDirections.hs
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/icfpc2008/!svn/ver/80/tags/sunday_night_freeze/src/pierre/BasicDirections.hs
+END
