@@ -80,6 +80,7 @@ revive prop i = let slot = prop ! i
                   else
                       prop
 
+
 applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( Func I, x ) -> ( x , prop, opp)
                                    ( Func Succ, Val i ) -> ( Val $ normalizeVal (i+1), prop , opp)
@@ -101,6 +102,8 @@ applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( PartialF Help [Val i, j ], Val n ) | validIdx i -> applyHelp prop opp i j n
                                    ( Func Copy, Val i) | validIdx i -> ( field $ opp ! i, prop , opp )
                                    ( Func Revive, Val i ) | validIdx i -> ( Func I, revive prop i, opp )
+                                   ( Func Zombie, i ) -> (PartialF Zombie [i], prop, opp)
+                                   ( PartialF Zombie [Val i], x ) | validIdx i && isDead opp i-> ( Func I, prop, opp // [(i, Slot x (-1) )] )
                                    _ -> (Error, prop, opp)
 
 
