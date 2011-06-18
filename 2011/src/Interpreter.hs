@@ -25,6 +25,9 @@ filterSlots slots = let ls = assocs slots
                     in
                       filter test ls
 
+showWorld (World pro opp) = "Proponent: " ++ show (filterSlots pro)
+                            ++ "\nOpponent: " ++ show (filterSlots opp)
+
 -- TODO this should really be a monad !
 
 cardToFunc Zero = Val 0

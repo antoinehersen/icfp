@@ -1,8 +1,8 @@
 module Main (main) where
 
 import System.Environment (getArgs)
-import System.IO (hFlush, stdout)
-import Control.Monad  
+import System.IO (hFlush, stdout, stdin, stderr, hIsClosed, hPutStrLn )
+import Control.Monad
 
 import Cards
 import Actions
@@ -29,15 +29,20 @@ playDummy :: IO ()
 playDummy = playMove idleMove
 
 
+pWorldIfDone world = do end <- hIsClosed stdin
+                        when end $ hPutStrLn stderr (showWorld world)
 
-
--- TODO add handling of end of file using isEOF
 doTurn world my_move = do
+  pWorldIfDone world
   playMove my_move
   hFlush stdout -- ! important std are buffered
-  opp_move <- readOpponent
-  let new_word = updateOpponent ( updateProponent world my_move ) opp_move
-  return new_word
+  let new_word = updateProponent world my_move
+  catch (do opp_move <- readOpponent
+            let new_new_word = updateOpponent new_word opp_move
+            return new_new_word)
+        (\err -> do hPutStrLn stderr (show err)
+                    hPutStrLn stderr (showWorld world)
+                    fail "life" )
 
 playLoop :: World -> [Move] -> IO ()
 playLoop world moves = foldM_ doTurn world (moves ++ (repeat idleMove))
