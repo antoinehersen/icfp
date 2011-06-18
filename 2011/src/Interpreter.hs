@@ -30,10 +30,31 @@ increaseVit slots idx i = let slot = slots ! idx
                               _ | cur_vit > 0 && cur_vit < 65535 -> slots // [ (idx, slot { vitality = (cur_vit + i) } ) ]
                               otherwise -> slots
 
+decreaseVit slots idx i = let slot = slots ! idx
+                              cur_vit = vitality slot
+                          in
+                            case cur_vit of
+                              _ | cur_vit > 0 -> slots // [ (idx, slot { vitality = (cur_vit - i) } ) ]
+                              otherwise -> slots
+
 applyS prop opp f g x = let ( h, prop1, opp1) = applyFun prop opp f x
                             ( y, prop2, opp2) = applyFun prop1 opp1 g x
                         in
                           applyFun prop2 opp2 h y
+
+-- ! use lazyness
+applyAttack prop opp i j n = let v = vitality $ prop ! i
+                                 new_prop = decreaseVit prop i n
+                             in
+                               if n > v then
+                                   (Error, prop, opp)
+                               else
+                                   case j of
+                                     Val jdx | validIdx jdx -> let w = vitality $ opp ! (255 - jdx )
+                                                                   dec = min w $ quot (9 * n ) 10
+                                                                   new_opp = decreaseVit opp (255 - jdx) dec
+                                                               in ( Func I , new_prop, new_opp)
+                                     _ -> (Error, new_prop, opp)
 
 applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( Func I, x ) -> ( x , prop, opp)
@@ -46,7 +67,11 @@ applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( PartialF S [f,g], x ) -> applyS prop opp f g x
                                    ( Func K , x ) -> ( PartialF K [x] , prop, opp )
                                    ( PartialF K [x] , y ) -> ( x , prop , opp )
-                                   ( Func Inc, Val idx) | validIdx idx ) -> (Val I, increaseVit prop idx 1, opp)
+                                   ( Func Inc, Val idx) | validIdx idx  -> (Func I, increaseVit prop idx 1, opp)
+                                   ( Func Dec, Val idx) | validIdx idx -> (Func I, prop, decreaseVit opp (255-idx) 1 )
+                                   ( Func Attack, i) -> (PartialF Attack [i] , prop, opp)
+                                   ( PartialF Attack [i], j ) -> (PartialF Attack [i,j] , prop , opp)
+                                   ( PartialF Attack [Val i, j], Val n ) | validIdx i -> applyAttack prop opp i j n
                                    _ -> (Error, prop, opp)
 
 
