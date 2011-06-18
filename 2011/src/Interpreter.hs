@@ -139,7 +139,10 @@ updateProponent (World prop opp) (Move side card idx) = let fun = cardToFunc car
                                                         in
                                                           World finalProp newOpp
 
+updateOpponent :: World -> Move -> World
+updateOpponent (World prop opp) move = World new_opp new_prop
+    where
+      (World new_prop new_opp) = updateProponent (World opp prop) move
 
-------- tests
 
 

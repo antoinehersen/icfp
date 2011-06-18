@@ -49,7 +49,7 @@ test1 = Abs "x" ( Abs "y" (LApp (LVar "y" ) (LVar "x")))
 test2 = Abs "a" ( Abs "b" ( Abs "c" (Abs "d" ( LApp (LApp ( LApp (LVar "d") (LVar "c")) (LVar "b")) (LVar "a")))))
 -- ((S(K(S((S(KS))((S(K(S(KS))))((S(K(S((S(KS))((S(K(SI)))((S(KK))I))))))((S(KK))((S(KK))I))))))))((S(KK))((S(KK))((S(KK))I))))
 
-tests = test [ "rule 1" ~:
+tests = test [ "rule 1" ~::q
                (Var "x") ~=? lambda2ski (LVar "x"),
                "wikipedia example" ~:
                (App (App S (App K (App S I))) (App (App S (App K K)) I)) ~=? lambda2ski ( Abs "x" ( Abs "y" (LApp (LVar "y" ) (LVar "x"))))
