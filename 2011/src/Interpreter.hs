@@ -19,10 +19,20 @@ cardToFunc card = Func card
 normalizeVal i | i > 65535 = 65535
                | otherwise = i
 
+applyS prop opp f g x = let ( h, prop1, opp1) = applyFun prop opp f x
+                            ( y, prop2, opp2) = applyFun prop1 opp1 g x
+                        in
+                          applyFun prop2 opp2 h y
 
 applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( Func I, x ) -> ( x , prop, opp)
-                                   ( Func Succ , Val i ) -> ( Val $ normalizeVal (i+1), prop , opp)
+                                   ( Func Succ, Val i ) -> ( Val $ normalizeVal (i+1), prop , opp)
+                                   ( Func Dbl , Val i ) -> ( Val $ normalizeVal (i*1), prop , opp)
+                                   ( Func Get , Val i ) | i >= 0 && i <= 255 -> ( field $ prop ! i , prop , opp )
+                                   ( Func Put , _ ) -> ( Func I , prop, opp)
+                                   ( Func S, f) -> ( PartialF S [f] , prop, opp )
+                                   ( PartialF S [f] , g ) -> ( PartialF S [f, g ] , prop, opp )
+                                   ( PartialF S [f,g], x ) -> applyS prop opp f g x
                                    _ -> (Error, prop, opp)
 
 
