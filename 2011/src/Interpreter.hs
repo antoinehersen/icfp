@@ -4,14 +4,17 @@ import Cards
 import Actions
 import Data.Array
 
-data Field = Val Int | Func Card | PartialF Card [Field] | Error deriving Show
+data Field = Val Int | Func Card | PartialF Card [Field] | Error deriving (Eq, Show)
 
-data Slot = Slot { field :: Field, vitality :: Int} deriving Show
+data Slot = Slot { field :: Field, vitality :: Int} deriving (Eq, Show)
 
 type Slots = Array Int Slot
 
 data World = World { proponent :: Slots , opponent :: Slots } deriving Show
 
+defaultSlot = Slot (Func I) 10000
+
+defaultSlots = listArray (0, 255) (repeat defaultSlot) 
 
 -- TODO this should really be a monad !
 

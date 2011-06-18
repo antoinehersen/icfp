@@ -14,7 +14,7 @@ data Card = I
           | Help
           | Copy
           | Revive
-          | Zombie
+          | Zombie deriving (Eq)
 
 
 
