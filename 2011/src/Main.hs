@@ -7,7 +7,6 @@ import Cards
 import Actions
 import Strategies
 
-
 readOpponent = do
   application_side <- getLine
   case application_side of

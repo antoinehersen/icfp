@@ -4,6 +4,8 @@ import Cards
 import Actions
 import Data.Array
 
+import Debug.Trace
+
 data Field = Val Int | Func Card | PartialF Card [Field] | Error deriving (Eq, Show)
 
 data Slot = Slot { field :: Field, vitality :: Int} deriving (Eq, Show)
@@ -14,7 +16,14 @@ data World = World { proponent :: Slots , opponent :: Slots } deriving Show
 
 defaultSlot = Slot (Func I) 10000
 
-defaultSlots = listArray (0, 255) (repeat defaultSlot) 
+defaultSlots = listArray (0, 255) (repeat defaultSlot)
+
+defaultWorld = World defaultSlots defaultSlots
+
+filterSlots slots = let ls = assocs slots
+                        test (_, f) = f /= defaultSlot
+                    in
+                      filter test ls
 
 -- TODO this should really be a monad !
 
@@ -85,7 +94,7 @@ revive prop i = let slot = prop ! i
 
 
 applyFun prop opp leftF rightF = case (leftF, rightF) of
-                                   ( Func I, x ) -> ( x , prop, opp)
+                                   ( Func I, x ) ->  ( x , prop, opp)
                                    ( Func Succ, Val i ) -> ( Val $ normalizeVal (i+1), prop , opp)
                                    ( Func Dbl , Val i ) -> ( Val $ normalizeVal (i*1), prop , opp)
                                    ( Func Get , Val i ) | validIdx i-> ( field $ prop ! i , prop , opp )
@@ -96,7 +105,7 @@ applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( Func K , x ) -> ( PartialF K [x] , prop, opp )
                                    ( PartialF K [x] , y ) -> ( x , prop , opp )
                                    ( Func Inc, Val idx) | validIdx idx  -> (Func I, increaseVit prop idx 1, opp)
-                                   ( Func Dec, Val idx) | validIdx idx -> (Func I, prop, decreaseVit opp (255-idx) 1 )
+                                   ( Func Dec, Val idx) | validIdx idx ->  (Func I, prop, decreaseVit opp (255-idx) 1 )
                                    ( Func Attack, i) -> (PartialF Attack [i] , prop, opp)
                                    ( PartialF Attack [i], j ) -> (PartialF Attack [i,j] , prop , opp)
                                    ( PartialF Attack [Val i, j], Val n ) | validIdx i -> applyAttack prop opp i j n
@@ -110,17 +119,27 @@ applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    _ -> (Error, prop, opp)
 
 
-cleanRes Error = Func I
+cleanRes Error = trace " !! Error !! " Func I
 cleanRes field = field
 
 updateProponent :: World -> Move -> World
 updateProponent (World prop opp) (Move side card idx) = let fun = cardToFunc card
                                                             slot = prop ! idx
+-- TODO check if dead
                                                             (tmp_res, newProp, newOpp) = case side of
                                                                                        LeftApp  -> applyFun prop opp fun ( field slot)
                                                                                        RightApp -> applyFun prop opp (field slot) fun
                                                             res = cleanRes tmp_res
                                                             new_slot = slot { field = res }
+                                                                       -- trace ("fun: " ++ show fun
+                                                                       --                ++ " slot: " ++ show slot
+                                                                       --                ++ " tmp_res: " ++ show tmp_res
+                                                                       --                ++ " res: " ++ show res ) 
                                                             finalProp = newProp // [ (idx, new_slot) ]
                                                         in
                                                           World finalProp newOpp
+
+
+------- tests
+
+
