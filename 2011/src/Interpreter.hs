@@ -23,18 +23,24 @@ normalizeVal i | i > 65535 = 65535
 
 validIdx i = i >= 0 && i <= 255
 
+isAlive slots i = vitality (slots ! i ) > 0
+isDead slots i = not $ isAlive slots i
+
+
 increaseVit slots idx i = let slot = slots ! idx
                               cur_vit = vitality slot
+                              new_vit = min 65535 (cur_vit + i)
                           in
                             case cur_vit of
-                              _ | cur_vit > 0 && cur_vit < 65535 -> slots // [ (idx, slot { vitality = (cur_vit + i) } ) ]
+                              _ | cur_vit > 0 && cur_vit < 65535 -> slots // [ (idx, slot { vitality = new_vit } ) ]
                               otherwise -> slots
 
 decreaseVit slots idx i = let slot = slots ! idx
                               cur_vit = vitality slot
+                              new_vit = max 0 (cur_vit -i)
                           in
                             case cur_vit of
-                              _ | cur_vit > 0 -> slots // [ (idx, slot { vitality = (cur_vit - i) } ) ]
+                              _ | cur_vit > 0 -> slots // [ (idx, slot { vitality = new_vit } ) ]
                               otherwise -> slots
 
 applyS prop opp f g x = let ( h, prop1, opp1) = applyFun prop opp f x
@@ -50,11 +56,29 @@ applyAttack prop opp i j n = let v = vitality $ prop ! i
                                    (Error, prop, opp)
                                else
                                    case j of
-                                     Val jdx | validIdx jdx -> let w = vitality $ opp ! (255 - jdx )
-                                                                   dec = min w $ quot (9 * n ) 10
+                                     Val jdx | validIdx jdx -> let dec = quot (9 * n ) 10
                                                                    new_opp = decreaseVit opp (255 - jdx) dec
                                                                in ( Func I , new_prop, new_opp)
                                      _ -> (Error, new_prop, opp)
+
+applyHelp prop opp i j n = let v = vitality $ prop ! i
+                               new_prop = decreaseVit prop i n
+                           in
+                             if n > v then
+                                 (Error, prop, opp)
+                             else
+                                 case j of
+                                   Val jdx | validIdx jdx -> let inc = quot (11 * n ) 10
+                                                                 new_new_prop = increaseVit new_prop jdx inc
+                                                             in ( Func I , new_new_prop, opp)
+                                   _ -> (Error, new_prop, opp)
+
+revive prop i = let slot = prop ! i
+                in
+                  if vitality slot <= 0 then
+                      prop // [ (i, slot {vitality = 1} ) ]
+                  else
+                      prop
 
 applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( Func I, x ) -> ( x , prop, opp)
@@ -72,6 +96,11 @@ applyFun prop opp leftF rightF = case (leftF, rightF) of
                                    ( Func Attack, i) -> (PartialF Attack [i] , prop, opp)
                                    ( PartialF Attack [i], j ) -> (PartialF Attack [i,j] , prop , opp)
                                    ( PartialF Attack [Val i, j], Val n ) | validIdx i -> applyAttack prop opp i j n
+                                   ( Func Help , i ) -> ( PartialF Help [i], prop, opp)
+                                   ( PartialF Help [i], j) -> (PartialF Help [i,j], prop, opp)
+                                   ( PartialF Help [Val i, j ], Val n ) | validIdx i -> applyHelp prop opp i j n
+                                   ( Func Copy, Val i) | validIdx i -> ( field $ opp ! i, prop , opp )
+                                   ( Func Revive, Val i ) | validIdx i -> ( Func I, revive prop i, opp )
                                    _ -> (Error, prop, opp)
 
 
