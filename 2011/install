@@ -1,0 +1,6 @@
+#!/bin/bash
+pushd src
+make clean
+make
+cp run ../
+popd
