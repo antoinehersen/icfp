@@ -48,6 +48,8 @@ playLoop world moves = foldM_ doTurn world (take 100000 (moves ++ (repeat idleMo
 
 playSoloLoop = do mapM_ playMove soloStrategy
                   mapM_ playMove $ maxNb 3
+                  mapM_ playMove $ nbToMoves 27 31
+                  mapM_ playMove ( [ Move RightApp Get 9 ] ++ applyNbMoves 31 9 )
                   hFlush stdout
                   interact id
 
