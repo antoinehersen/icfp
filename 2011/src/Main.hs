@@ -33,7 +33,6 @@ pWorldIfDone world = do end <- hIsClosed stdin
                         when end $ hPutStrLn stderr (showWorld world)
 
 doTurn world my_move = do
---  pWorldIfDone world
   playMove my_move
   hFlush stdout -- ! important std are buffered
   let new_world = updateProponent world my_move
@@ -42,12 +41,15 @@ doTurn world my_move = do
             return new_new_world)
         (\err -> do hPutStrLn stderr (show err)
                     --  hPutStrLn stderr (showWorld new_world)
-                    fail "life" )
+                    return new_world )
 
 playLoop :: World -> [Move] -> IO ()
 playLoop world moves = foldM_ doTurn world (take 100000 (moves ++ (repeat idleMove)))
 
-
+playSoloLoop = do mapM_ playMove soloStrategy
+                  mapM_ playMove $ maxNb 3
+                  hFlush stdout
+                  interact id
 
 main = do
   [player_id] <- getArgs
@@ -58,5 +60,6 @@ main = do
     "0" -> playLoop world strategy
     "1" -> do opp_move <- readOpponent
               playLoop (updateOpponent world opp_move) strategy
+    "3" -> playSoloLoop
     _ -> fail $ "Invalid player id: " ++ player_id
 
