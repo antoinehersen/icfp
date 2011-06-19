@@ -53,9 +53,19 @@ getArgFromMoves from i = [ Move LeftApp K i, Move LeftApp S i , Move RightApp Ge
 ------------------------------------------------
 ------------------------------------------------
 
+setNb = nbToMoves
+
 applyNb nb = applyNbMoves (nb `mod` 256)
 getArgFrom from  = getArgFromMoves (from `mod` 256)
-setNb = nbToMoves
+argByRef register nb i = clean register ++ setNb nb register ++ getArgFrom register i
+
+optimalArg register nb i = let byVal = applyNb nb i
+                               byArg = argByRef register nb i
+                           in if (length byVal) < (length byArg)
+                              then byVal
+                              else byArg
+
+
 
 addFrom = addFromMoves -- a bit retardet in retrospect
 
@@ -63,8 +73,8 @@ addFrom = addFromMoves -- a bit retardet in retrospect
 
 clean i = [Move LeftApp Put i ]
 
-heal pts target i = clean target ++ clean i
-                    ++ setNb pts target ++ [ Move RightApp Help i ] ++ applyNb target i ++ applyNb target i ++ getArgFrom target i
+heal pts target i = clean i
+                    ++ [ Move RightApp Help i ] ++ optimalArg target target i ++ optimalArg target target i ++ optimalArg target pts i
 
 healTo to from target i = let seq = healthSeq from to
                           in concatMap (\pts -> heal pts target i ) seq
@@ -72,8 +82,8 @@ healTo to from target i = let seq = healthSeq from to
 healMax = healTo 65535
 
 
-attack pts base target i = clean base ++ clean i
-                      ++  setNb pts base ++ [ Move RightApp Attack i ] ++ applyNb base i ++ applyNb target i ++ getArgFrom base i
+attack pts base target i = clean i
+                           ++ [ Move RightApp Attack i ] ++ optimalArg base  base i ++ optimalArg base target i ++ optimalArg base pts i
 
 -- *Strategies> map (length .nbToCards)  [0 .. 255]
 -- [1,2,3,4,4,5,5,6,5,6,6,7,6,7,7,8,6,7,7,8,7,8,8,9,7,8,8,9,8,9,9,10,7,8,8,9,8,9,9,10,8,9,9,10,9,10,10,11,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,12,13,13,14,13,14,14,15,13,14,14,15,14,15,15,16]
@@ -88,9 +98,14 @@ maxVal =  65535
 
 staticWave = (healMax 10000 1 2) ++ concatMap (\i -> ( attack killPts 1 i (i+2)) ++  ( healMax (maxVal - killPts) 1 (i+2) )) [0 .. 255 ]
 
+debugStat = (healMax 10000 1 2) ++ ( attack killPts 1 (255 - 33 ) 2 )
+
 -- hugeWave = concatMap (\i -> ( healMax 10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
 
 -- bigWave = concatMap (\i -> ( healTo (10000 + killPts )  10000 i (i+i) ) ++ (attack killPts i (i + 1 ) )) [0 .. 255 ]
 
 
 -- smallWave = concatMap (\i -> ( healTo (killPts +1 )  10000 i (i+i) ) ++ (attack killPts i (i + 1 ) )) [0 .. 255 ]
+
+
+
