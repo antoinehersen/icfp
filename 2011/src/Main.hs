@@ -69,7 +69,7 @@ playSoloLoop = do playMoves $ optimalArg 0 killPts 12
 
 main = do
   [player_id] <- getArgs
-  let strategy = staticWave ++ strategySimpleAttack
+  let strategy = snipeTarg [0..7] ++ maxAttack 1 [ 8 .. 255 ] ++ strategySimpleAttack
   let world = defaultWorld
 
   case player_id of

@@ -101,12 +101,19 @@ healthSeq cur target | cur < target = let max_inc = (cur - 1 )  `quot` 10
 killPts = 11120
 maxVal =  65535
 
+halfKill = 6000
+
 staticWave = (healMax 10000 1 2) ++ concatMap (\i -> ( attack killPts 1 i (i+2)) ++  ( healMax (maxVal - killPts) 1 (i+2) )) [0 .. 255 ]
 
-baseWave base = (healMax 10000 base (base + 1))
-                ++ concatMap (\i -> ( attack killPts base i (i+1)) ++  ( healMax (maxVal - killPts) base (i+1) )) [0 .. 255 ]
+maxAttack base targets =
+    (healMax 10000 base (base + 1))
+    ++ concatMap (\i -> ( attack killPts base (255 - i) (i+1)) ++  ( healMax (maxVal - killPts) base (i+1) )) targets
 
-debugStat = (healMax 10000 1 2) ++ ( attack killPts 1 (255 - 33 ) 2 )
+
+sniper target sac1 sac2 i = (attack halfKill sac1 (255 - target) i) ++ (attack halfKill sac2 (255 - target) i)
+snipeTarg targets = concatMap (\t ->  sniper t (t*2 + 10 ) (t*2 + 11 ) 9 )  targets
+
+debugStat = sniper 0 12 13 3
 
 -- hugeWave = concatMap (\i -> ( healMax 10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
 
