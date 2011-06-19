@@ -19,9 +19,9 @@ playMove :: Move -> IO ()
 playMove (Move side card idx) = case side  of
                                   LeftApp -> do putStrLn (show side)
                                                 putStrLn (show card)
-                                                putStrLn (show idx )
+                                                putStrLn (show (idx `mod` 255))
                                   RightApp -> do putStrLn (show side)
-                                                 putStrLn (show idx )
+                                                 putStrLn (show (idx `mod` 255))
                                                  putStrLn (show card)
 
 
