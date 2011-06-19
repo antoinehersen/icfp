@@ -49,13 +49,16 @@ applyNbMoves nb i = map tr $ applyNbCards nb
 
 getArgFromMoves from i = [ Move LeftApp K i, Move LeftApp S i , Move RightApp Get i ] ++ ( applyNbMoves from i)
 
+avoidColisionWith i j | i /= j = i
+                      | otherwise = (i + 7) `mod` 256
+
 ------------------------------------------------
 ------------------------------------------------
 ------------------------------------------------
 
 setNb = nbToMoves
 
-applyNb nb = applyNbMoves (nb `mod` 256)
+applyNb nb = applyNbMoves nb
 getArgFrom from  = getArgFromMoves (from `mod` 256)
 argByRef register nb i = clean register ++ setNb nb register ++ getArgFrom register i
 
@@ -73,8 +76,11 @@ addFrom = addFromMoves -- a bit retardet in retrospect
 
 clean i = [Move LeftApp Put i ]
 
-heal pts target i = clean i
-                    ++ [ Move RightApp Help i ] ++ optimalArg target target i ++ optimalArg target target i ++ optimalArg target pts i
+heal pts target' i' = let target = target' `mod` 256
+                          i = avoidColisionWith ( i' `mod` 256 ) target
+                      in
+                        clean i ++ [ Move RightApp Help i ]
+                                  ++ optimalArg target target i ++ optimalArg target target i ++ optimalArg target pts i
 
 healTo to from target i = let seq = healthSeq from to
                           in concatMap (\pts -> heal pts target i ) seq
@@ -82,12 +88,11 @@ healTo to from target i = let seq = healthSeq from to
 healMax = healTo 65535
 
 
-attack pts base target i = clean i
-                           ++ [ Move RightApp Attack i ] ++ optimalArg base  base i ++ optimalArg base target i ++ optimalArg base pts i
-
--- *Strategies> map (length .nbToCards)  [0 .. 255]
--- [1,2,3,4,4,5,5,6,5,6,6,7,6,7,7,8,6,7,7,8,7,8,8,9,7,8,8,9,8,9,9,10,7,8,8,9,8,9,9,10,8,9,9,10,9,10,10,11,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,12,13,13,14,13,14,14,15,13,14,14,15,14,15,15,16]
-
+attack pts base' target' i' = let target = target' `mod` 256
+                                  base = base'  `mod` 256
+                                  i = avoidColisionWith ( i' `mod` 256 ) base
+                      in clean i ++ [ Move RightApp Attack i ]
+                             ++ optimalArg base base i ++ optimalArg base target i ++ optimalArg base pts i
 
 healthSeq cur target | cur < target = let max_inc = (cur - 1 )  `quot` 10
                                       in (cur - 1 ) : ( healthSeq (cur + max_inc) target)
@@ -97,6 +102,9 @@ killPts = 11120
 maxVal =  65535
 
 staticWave = (healMax 10000 1 2) ++ concatMap (\i -> ( attack killPts 1 i (i+2)) ++  ( healMax (maxVal - killPts) 1 (i+2) )) [0 .. 255 ]
+
+baseWave base = (healMax 10000 base (base + 1))
+                ++ concatMap (\i -> ( attack killPts base i (i+1)) ++  ( healMax (maxVal - killPts) base (i+1) )) [0 .. 255 ]
 
 debugStat = (healMax 10000 1 2) ++ ( attack killPts 1 (255 - 33 ) 2 )
 
@@ -108,4 +116,12 @@ debugStat = (healMax 10000 1 2) ++ ( attack killPts 1 (255 - 33 ) 2 )
 -- smallWave = concatMap (\i -> ( healTo (killPts +1 )  10000 i (i+i) ) ++ (attack killPts i (i + 1 ) )) [0 .. 255 ]
 
 
+-- 32640
+sumW i = sum [ (x*i) `mod` 256 | x <- [0 .. 255 ]]
 
+possibleWaveLength = [ x | x <- [0..255] , sumW x == 32640 ]
+-- [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59,61,63,65,67,69,71,73,75,77,79,81,83,85,87,89,91,93,95,97,99,101,103,105,107,109,111,113,115,117,119,121,123,125,127,129,131,133,135,137,139,141,143,145,147,149,151,153,155,157,159,161,163,165,167,169,171,173,175,177,179,181,183,185,187,189,191,193,195,197,199,201,203,205,207,209,211,213,215,217,219,221,223,225,227,229,231,233,235,237,239,241,243,245,247,249,251,253,255]
+
+
+-- *Strategies> map (length .nbToCards)  [0 .. 255]
+-- [1,2,3,4,4,5,5,6,5,6,6,7,6,7,7,8,6,7,7,8,7,8,8,9,7,8,8,9,8,9,9,10,7,8,8,9,8,9,9,10,8,9,9,10,9,10,10,11,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,12,13,13,14,13,14,14,15,13,14,14,15,14,15,15,16]
