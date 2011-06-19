@@ -72,8 +72,8 @@ healTo to from target i = let seq = healthSeq from to
 healMax = healTo 65535
 
 
-attack pts target i = clean target ++ clean i
-                      ++  setNb pts target ++ [ Move RightApp Attack i ] ++ applyNb target i ++ applyNb target i ++ getArgFrom target i
+attack pts base target i = clean base ++ clean i
+                      ++  setNb pts base ++ [ Move RightApp Attack i ] ++ applyNb base i ++ applyNb target i ++ getArgFrom base i
 
 -- *Strategies> map (length .nbToCards)  [0 .. 255]
 -- [1,2,3,4,4,5,5,6,5,6,6,7,6,7,7,8,6,7,7,8,7,8,8,9,7,8,8,9,8,9,9,10,7,8,8,9,8,9,9,10,8,9,9,10,9,10,10,11,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,12,13,13,14,13,14,14,15,13,14,14,15,14,15,15,16]
@@ -84,10 +84,13 @@ healthSeq cur target | cur < target = let max_inc = (cur - 1 )  `quot` 10
                      | otherwise = []
 
 killPts = 11120
+maxVal =  65535
 
-hugeWave = concatMap (\i -> ( healMax 10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
+staticWave = (healMax 10000 1 2) ++ concatMap (\i -> ( attack killPts 1 i (i+2)) ++  ( healMax (maxVal - killPts) 1 (i+2) )) [0 .. 255 ]
 
-bigWave = concatMap (\i -> ( healTo (10000 + killPts )  10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
-bigWave2 = concatMap (\i -> ( healTo (10000 + killPts )  10000 i 3 ) ++ (attack killPts i 3 )) [0 .. 255 ]
+-- hugeWave = concatMap (\i -> ( healMax 10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
 
-smallWave = concatMap (\i -> ( healTo (killPts +1 )  10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
+-- bigWave = concatMap (\i -> ( healTo (10000 + killPts )  10000 i (i+i) ) ++ (attack killPts i (i + 1 ) )) [0 .. 255 ]
+
+
+-- smallWave = concatMap (\i -> ( healTo (killPts +1 )  10000 i (i+i) ) ++ (attack killPts i (i + 1 ) )) [0 .. 255 ]

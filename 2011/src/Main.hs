@@ -59,13 +59,13 @@ playSoloLoop = do playMoves soloStrategy
                   playMoves $ setNb 31 0
                   playMoves $ addFrom 87 31 0
                   playMoves $ healMax 10000 1 2
-                  playMoves $ attack 10000 1 2
+--                  playMoves $ attack 10000 1 2
                   hFlush stdout
                   interact id
 
 main = do
   [player_id] <- getArgs
-  let strategy = bigWave ++ strategySimpleAttack
+  let strategy = staticWave ++ strategySimpleAttack
   let world = defaultWorld
 
   case player_id of
