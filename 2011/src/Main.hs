@@ -46,16 +46,26 @@ doTurn world my_move = do
 playLoop :: World -> [Move] -> IO ()
 playLoop world moves = foldM_ doTurn world (take 100000 (moves ++ (repeat idleMove)))
 
-playSoloLoop = do mapM_ playMove soloStrategy
-                  mapM_ playMove $ maxNb 3
-                  mapM_ playMove $ nbToMoves 27 31
-                  mapM_ playMove ( [ Move RightApp Get 9 ] ++ applyNbMoves 31 9 )
+playSoloLoop = do playMoves soloStrategy
+                  playMoves $ maxNb 3
+                  playMoves $ nbToMoves 27 31
+                  playMoves ( [ Move RightApp Get 9 ] ++ applyNbMoves 31 9 )
+                  playMoves $ nbToMoves 7 5
+                  playMoves $ nbToMoves 5 8
+                  playMoves ( [ Move RightApp Get 11 ] ++ getArgFromMoves 8 11 )
+                  playMoves $ clean 1
+                  playMoves $ heal 1098 1 2
+                  playMoves $ clean 0
+                  playMoves $ setNb 31 0
+                  playMoves $ addFrom 87 31 0
+                  playMoves $ healMax 10000 1 2
+                  playMoves $ attack 10000 1 2
                   hFlush stdout
                   interact id
 
 main = do
   [player_id] <- getArgs
-  let strategy = strategySimpleAttack
+  let strategy = hugeWave ++ strategySimpleAttack
   let world = defaultWorld
 
   case player_id of

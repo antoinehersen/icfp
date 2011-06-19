@@ -23,6 +23,16 @@ nbToMoves nb i = map tr $ nbToCards nb
       tr Zero = Move RightApp Zero i
       tr a = Move LeftApp a i
 
+--- target_nb actuall_nb
+addFromCards :: Int -> Int -> [Card]
+addFromCards t a = reverse $ nbToCards' t a
+    where
+      nbToCards' t a | t <= a = []
+                     | (t `mod` 2) == 0 && (t `quot` 2 ) >= a = Dbl : (nbToCards' (t `quot` 2 ) a )
+                     | otherwise = Succ : ( nbToCards' (t - 1)  a )
+
+addFromMoves t a i = map (\x -> Move LeftApp x i)  $ addFromCards t a
+
 applyNbCards n = let nb_cards = reverse $ nbToCards n
                  in add_ks nb_cards
     where
@@ -37,7 +47,38 @@ applyNbMoves nb i = map tr $ applyNbCards nb
       tr x = Move RightApp x i
 
 
+getArgFromMoves from i = [ Move LeftApp K i, Move LeftApp S i , Move RightApp Get i ] ++ ( applyNbMoves from i)
 
+------------------------------------------------
+------------------------------------------------
+------------------------------------------------
+
+applyNb nb = applyNbMoves (nb `mod` 256)
+getArgFrom from  = getArgFromMoves (from `mod` 256)
+setNb = nbToMoves
+
+addFrom = addFromMoves -- a bit retardet in retrospect
+
+-- usr target for max arg too
+
+clean i = [Move LeftApp Put i ]
+
+heal pts target i = clean target ++ clean i
+                    ++ setNb pts target ++ [ Move RightApp Help i ] ++ applyNb target i ++ applyNb target i ++ getArgFrom target i
+
+healMax from target i = let seq = healthSeq from 65535
+                        in concatMap (\pts -> heal pts target i ) seq
+
+attack pts target i = clean target ++ clean i
+                      ++  setNb pts target ++ [ Move RightApp Attack i ] ++ applyNb target i ++ applyNb target i ++ getArgFrom target i
 
 -- *Strategies> map (length .nbToCards)  [0 .. 255]
 -- [1,2,3,4,4,5,5,6,5,6,6,7,6,7,7,8,6,7,7,8,7,8,8,9,7,8,8,9,8,9,9,10,7,8,8,9,8,9,9,10,8,9,9,10,9,10,10,11,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,12,13,13,14,13,14,14,15,13,14,14,15,14,15,15,16]
+
+
+healthSeq cur target | cur < target = let max_inc = (cur - 1 )  `quot` 10
+                                      in (cur - 1 ) : ( healthSeq (cur + max_inc) target)
+                     | otherwise = []
+
+
+hugeWave = concatMap (\i -> ( healMax 10000 i (i+i) ) ++ (attack 11120 i (i + i ) )) [0 .. 255 ]

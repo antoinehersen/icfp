@@ -15,13 +15,15 @@ readSide s = error $ "Not a side: " ++ s
 
 data Move = Move ApplicationSide Card Int deriving (Show)
 
+playMoves = mapM_ playMove
+
 playMove :: Move -> IO ()
 playMove (Move side card idx) = case side  of
                                   LeftApp -> do putStrLn (show side)
                                                 putStrLn (show card)
-                                                putStrLn (show (idx `mod` 255))
+                                                putStrLn (show (idx `mod` 256))
                                   RightApp -> do putStrLn (show side)
-                                                 putStrLn (show (idx `mod` 255))
+                                                 putStrLn (show (idx `mod` 256))
                                                  putStrLn (show card)
 
 
