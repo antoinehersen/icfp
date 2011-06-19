@@ -46,7 +46,8 @@ doTurn world my_move = do
 playLoop :: World -> [Move] -> IO ()
 playLoop world moves = foldM_ doTurn world (take 100000 (moves ++ (repeat idleMove)))
 
-playSoloLoop = do playMoves $ optimalArg 0 killPts 12
+playSoloLoop = do playMoves $ attack 10000 12 33 0
+                  playMoves $ reviveStr 12 0
             --      playMoves $ healMax 10000 1 2
               --    playMoves $ attack killPts 1 2 (256 - 33 )
                   hFlush stdout
@@ -69,7 +70,7 @@ playSoloLoop = do playMoves $ optimalArg 0 killPts 12
 
 main = do
   [player_id] <- getArgs
-  let strategy = snipeTarg [0..7] ++ maxAttack 1 [ 8 .. 255 ] ++ strategySimpleAttack
+  let strategy =  finalStrategy
   let world = defaultWorld
 
   case player_id of
