@@ -34,5 +34,17 @@ tests = test [ "init filter" ~: [] ~=? filterSlots defaultSlots,
                                 let world = updateProponent (updateProponent defaultWorld move1) move2
                                 [] @=? ( filterSlots $ proponent world )
                                 [(255,Slot {field = Func I, vitality = 9999})] @=? ( filterSlots $ opponent world )
-
              ]
+
+
+
+-- addOne:: Int -> Inter Int
+-- addOne i = return (i + 1)
+
+-- aaa:: Inter Int
+-- aaa = do
+--   a <- return 12
+--   b <- return ( a * 2)
+--   addOne b
+--   mapM_ addOne [1 .. 800 ]
+--   return 1
