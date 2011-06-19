@@ -65,7 +65,7 @@ playSoloLoop = do playMoves soloStrategy
 
 main = do
   [player_id] <- getArgs
-  let strategy = hugeWave ++ strategySimpleAttack
+  let strategy = bigWave ++ strategySimpleAttack
   let world = defaultWorld
 
   case player_id of

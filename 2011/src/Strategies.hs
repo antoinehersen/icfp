@@ -66,8 +66,11 @@ clean i = [Move LeftApp Put i ]
 heal pts target i = clean target ++ clean i
                     ++ setNb pts target ++ [ Move RightApp Help i ] ++ applyNb target i ++ applyNb target i ++ getArgFrom target i
 
-healMax from target i = let seq = healthSeq from 65535
-                        in concatMap (\pts -> heal pts target i ) seq
+healTo to from target i = let seq = healthSeq from to
+                          in concatMap (\pts -> heal pts target i ) seq
+
+healMax = healTo 65535
+
 
 attack pts target i = clean target ++ clean i
                       ++  setNb pts target ++ [ Move RightApp Attack i ] ++ applyNb target i ++ applyNb target i ++ getArgFrom target i
@@ -80,5 +83,11 @@ healthSeq cur target | cur < target = let max_inc = (cur - 1 )  `quot` 10
                                       in (cur - 1 ) : ( healthSeq (cur + max_inc) target)
                      | otherwise = []
 
+killPts = 11120
 
-hugeWave = concatMap (\i -> ( healMax 10000 i (i+i) ) ++ (attack 11120 i (i + i ) )) [0 .. 255 ]
+hugeWave = concatMap (\i -> ( healMax 10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
+
+bigWave = concatMap (\i -> ( healTo (10000 + killPts )  10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
+bigWave2 = concatMap (\i -> ( healTo (10000 + killPts )  10000 i 3 ) ++ (attack killPts i 3 )) [0 .. 255 ]
+
+smallWave = concatMap (\i -> ( healTo (killPts +1 )  10000 i (i+i) ) ++ (attack killPts i (i + i ) )) [0 .. 255 ]
