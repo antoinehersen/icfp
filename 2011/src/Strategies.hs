@@ -25,7 +25,7 @@ nbToMoves nb i = map tr $ nbToCards nb
 
 --- target_nb actuall_nb
 addFromCards :: Int -> Int -> [Card]
-addFromCards t a = reverse $ nbToCards' t a
+addFromCards x y = reverse $ nbToCards' x y
     where
       nbToCards' t a | t <= a = []
                      | (t `mod` 2) == 0 && (t `quot` 2 ) >= a = Dbl : (nbToCards' (t `quot` 2 ) a )
@@ -62,6 +62,10 @@ reviveStr target' from' = let target = target' `mod` 256
 zipRound range = zip range ( tail $ cycle range )
 
 reviveWave targets = concatMap (\(t,f) -> reviveStr t f) (zipRound targets)
+
+decStr from =  [ Move RightApp Dec from, Move RightApp Zero from ]
+
+yinYanWave targets = concatMap (\(t,f) -> reviveStr t f ++ decStr t ) (zipRound targets)
 
 
 ------------------------------------------------
@@ -123,7 +127,7 @@ maxAttack base targets =
 
 
 sniper target sac1 sac2 i = (attack halfKill sac1 (255 - target) i) ++ (attack halfKill sac2 (255 - target) i)
-snipeTarg targets = concatMap (\t ->  sniper t (t*2 + 10 ) (t*2 + 11 ) 9 )  targets
+snipeTarg offset from targets = concatMap (\t ->  sniper t (t*2 + offset ) (t*2 + offset + 1 ) (from + t) )  targets
 
 debugStat = sniper 0 12 13 3
 
@@ -149,6 +153,13 @@ possibleWaveLength = [ x | x <- [0..255] , sumW x == 32640 ]
 -- *Strategies> map (length .nbToCards)  [0 .. 255]
 -- [1,2,3,4,4,5,5,6,5,6,6,7,6,7,7,8,6,7,7,8,7,8,8,9,7,8,8,9,8,9,9,10,7,8,8,9,8,9,9,10,8,9,9,10,9,10,10,11,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,8,9,9,10,9,10,10,11,9,10,10,11,10,11,11,12,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,9,10,10,11,10,11,11,12,10,11,11,12,11,12,12,13,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,10,11,11,12,11,12,12,13,11,12,12,13,12,13,13,14,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,11,12,12,13,12,13,13,14,12,13,13,14,13,14,14,15,12,13,13,14,13,14,14,15,13,14,14,15,14,15,15,16]
 
-finalStrategy = snipeTarg [0..7] ++ maxAttack 1 [ 8 .. 255 ] ++ reviveWave (modFullRange 131 )
-                ++ maxAttack 7 (take 60 (modFullRange 79 ) )
-                ++ concatMap ( \m -> reviveWave (modFullRange m )) [37, 77, 247]
+finalStrategyComplex = snipeTarg 10 9 [0..7] ++ maxAttack 1 [ 8 .. 255 ] ++ reviveWave (modFullRange 131 )
+                       ++ maxAttack 7 (take 70 (modFullRange 79 ) )
+                       ++ concatMap ( \m -> reviveWave (modFullRange m )) [37, 77, 247]
+                       ++ snipeTarg 30 67 ( take 15 (modFullRange 167))
+
+finalStrategy = snipeTarg 0 37 [0 .. 42 ] ++ sniper 255 94 92 182
+
+
+infinteSurvival = concatMap ( \m -> reviveWave (modFullRange m )) $ cycle possibleWaveLength
+infYinYanWave = concatMap ( \m -> yinYanWave (modFullRange m )) $ cycle possibleWaveLength

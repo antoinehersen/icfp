@@ -70,7 +70,7 @@ playSoloLoop = do playMoves $ attack 10000 12 33 0
 
 main = do
   [player_id] <- getArgs
-  let strategy =  finalStrategy
+  let strategy =  finalStrategy ++ infYinYanWave
   let world = defaultWorld
 
   case player_id of
