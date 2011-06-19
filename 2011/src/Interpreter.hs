@@ -41,6 +41,12 @@ validIdx i = i >= 0 && i <= 255
 isAlive slots i = vitality (slots ! i ) > 0
 isDead slots i = not $ isAlive slots i
 
+data Inter t = Run t Int | IError
+
+-- instance Monad Inter t  where
+--   return a = [a]
+--   xs >>= f = concat (map f xs)
+
 
 increaseVit slots idx i = let slot = slots ! idx
                               cur_vit = vitality slot

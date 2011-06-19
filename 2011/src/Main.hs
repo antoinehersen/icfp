@@ -33,19 +33,19 @@ pWorldIfDone world = do end <- hIsClosed stdin
                         when end $ hPutStrLn stderr (showWorld world)
 
 doTurn world my_move = do
-  pWorldIfDone world
+--  pWorldIfDone world
   playMove my_move
   hFlush stdout -- ! important std are buffered
-  let new_word = updateProponent world my_move
+  let new_world = updateProponent world my_move
   catch (do opp_move <- readOpponent
-            let new_new_word = updateOpponent new_word opp_move
-            return new_new_word)
+            let new_new_world = updateOpponent new_world opp_move
+            return new_new_world)
         (\err -> do hPutStrLn stderr (show err)
-                    hPutStrLn stderr (showWorld world)
+                    --  hPutStrLn stderr (showWorld new_world)
                     fail "life" )
 
 playLoop :: World -> [Move] -> IO ()
-playLoop world moves = foldM_ doTurn world (moves ++ (repeat idleMove))
+playLoop world moves = foldM_ doTurn world (take 100000 (moves ++ (repeat idleMove)))
 
 
 
