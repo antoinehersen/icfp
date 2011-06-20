@@ -4,10 +4,15 @@ import System.Environment (getArgs)
 import System.IO (hFlush, stdout, stdin, stderr, hIsClosed, hPutStrLn )
 import Control.Monad
 
+import Control.Concurrent (forkIO)
+import Control.Concurrent.MVar
+
 import Cards
 import Actions
 import Strategies
 import Interpreter
+
+import Viz (initGL)
 
 
 readOpponent :: IO Move
@@ -37,14 +42,17 @@ doTurn world my_move = do
   hFlush stdout -- ! important std are buffered
   let new_world = updateProponent world my_move
   catch (do opp_move <- readOpponent
-            let new_new_world = updateOpponent new_world opp_move
+            let ! new_new_world = updateOpponent new_world opp_move
             return new_new_world)
         (\err -> do hPutStrLn stderr (show err)
-                    --  hPutStrLn stderr (showWorld new_world)
+                    hPutStrLn stderr (showWorld new_world)
                     return new_world )
 
-playLoop :: World -> [Move] -> IO ()
-playLoop world moves = foldM_ doTurn world (take 100000 (moves ++ (repeat idleMove)))
+
+playLoop world moves = do
+  final <- foldM doTurn world (take 100000 (moves ++ (repeat idleMove)))
+  hPutStrLn stderr (showWorld final)
+
 
 playSoloLoop = do playMoves $ attack 10000 12 33 0
                   playMoves $ reviveStr 12 0
@@ -72,6 +80,9 @@ main = do
   [player_id] <- getArgs
   let strategy =  finalStrategy ++ infYinYanWave
   let world = defaultWorld
+
+  worldM <- newMVar world
+  forkIO $ initGL worldM
 
   case player_id of
     "0" -> playLoop world strategy

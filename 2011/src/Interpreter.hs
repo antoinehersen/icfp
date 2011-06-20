@@ -20,6 +20,8 @@ defaultSlots = listArray (0, 255) (repeat defaultSlot)
 
 defaultWorld = World defaultSlots defaultSlots
 
+getVitality slots = map vitality $ elems slots
+
 filterSlots slots = let ls = assocs slots
                         test (_, f) = f /= defaultSlot
                     in
