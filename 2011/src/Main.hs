@@ -2,6 +2,8 @@ module Main (main) where
 
 import System.Environment (getArgs)
 import System.IO (hFlush, stdout, stdin, stderr, hIsClosed, hPutStrLn )
+import System.IO (BufferMode (..), hSetBuffering )
+
 import Control.Monad
 
 import Control.Concurrent (forkIO)
@@ -78,6 +80,9 @@ playSoloLoop = do playMoves $ attack 10000 12 33 0
 
 
 main = do
+  hSetBuffering stdin LineBuffering
+  hSetBuffering stdout LineBuffering
+
   [player_id] <- getArgs
   let strategy =  finalStrategy ++ infYinYanWave
   let world = defaultWorld
