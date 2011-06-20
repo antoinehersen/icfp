@@ -52,6 +52,9 @@ render worldM = do
   GLUT.swapBuffers
   
 
+updateScreen = do
+  GLUT.postRedisplay Nothing
+
 initGL worldM = do
   GLUT.initialDisplayMode $= [GLUT.RGBAMode
                              ,GLUT.Multisampling
@@ -61,7 +64,9 @@ initGL worldM = do
   GLUT.initialWindowSize $= GL.Size 800 600
   (name, args) <- GLUT.getArgsAndInitialize
   window <- GLUT.createWindow "icfp 2011"
+
   GLUT.displayCallback $= render worldM
+  GLUT.idleCallback $= Just updateScreen
 
   GL.clearColor $= GL.Color4 0 0 0 1
   GL.blend $= GL.Enabled
