@@ -4,7 +4,7 @@ import Graphics.Rendering.OpenGL.GL (($=))
 import qualified Graphics.Rendering.OpenGL.GL as GL
 import qualified Graphics.UI.GLUT as GLUT
 
-import Control.Concurrent.MVar
+import Control.Concurrent.Chan
 import Interpreter
 
 drawBar :: Float -> Float -> IO ()
@@ -32,23 +32,25 @@ drawBars side ls = do
     mapM_ (drawBar side ) ls
   return ()
 
+
 render worldM = do
   GL.clear [GL.ColorBuffer, GL.DepthBuffer ]
   GL.matrixMode $= GL.Modelview 0
   GL.loadIdentity
 
-  World propo oppo <- takeMVar worldM
+  World propo oppo <- readChan worldM
 
   drawBars 1    $ map fromIntegral $ getVitality propo
   drawBars (-1) $ map fromIntegral $ getVitality oppo
 
   GL.color $ (GL.Color4 1 1 1 1 :: GL.Color4 Float)
   GL.renderPrimitive GL.Lines $ do
-              GL.vertex (GL.Vertex2 0 0 ::GL.Vertex2 Float)
-              GL.vertex (GL.Vertex2 1280 0 ::GL.Vertex2 Float)
+                  GL.vertex (GL.Vertex2 0 0 ::GL.Vertex2 Float)
+                  GL.vertex (GL.Vertex2 1280 0 ::GL.Vertex2 Float)
 
   GL.flush
   GLUT.swapBuffers
+  
 
 initGL worldM = do
   GLUT.initialDisplayMode $= [GLUT.RGBAMode

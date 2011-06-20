@@ -5,7 +5,7 @@ import System.IO (hFlush, stdout, stdin, stderr, hIsClosed, hPutStrLn )
 import Control.Monad
 
 import Control.Concurrent (forkIO)
-import Control.Concurrent.MVar
+import Control.Concurrent.Chan
 
 import Cards
 import Actions
@@ -37,10 +37,11 @@ playDummy = playMove idleMove
 pWorldIfDone world = do end <- hIsClosed stdin
                         when end $ hPutStrLn stderr (showWorld world)
 
-doTurn world my_move = do
+doTurn worldM world my_move = do
   playMove my_move
   hFlush stdout -- ! important std are buffered
   let new_world = updateProponent world my_move
+  writeChan  worldM new_world
   catch (do opp_move <- readOpponent
             let ! new_new_world = updateOpponent new_world opp_move
             return new_new_world)
@@ -49,8 +50,8 @@ doTurn world my_move = do
                     return new_world )
 
 
-playLoop world moves = do
-  final <- foldM doTurn world (take 100000 (moves ++ (repeat idleMove)))
+playLoop worldM world moves = do
+  final <- foldM (doTurn worldM ) world (take 100000 (moves ++ (repeat idleMove)))
   hPutStrLn stderr (showWorld final)
 
 
@@ -81,13 +82,14 @@ main = do
   let strategy =  finalStrategy ++ infYinYanWave
   let world = defaultWorld
 
-  worldM <- newMVar world
+  worldM <- newChan
+  writeChan worldM world
   forkIO $ initGL worldM
 
   case player_id of
-    "0" -> playLoop world strategy
+    "0" -> playLoop worldM world strategy
     "1" -> do opp_move <- readOpponent
-              playLoop (updateOpponent world opp_move) strategy
+              playLoop worldM (updateOpponent world opp_move) strategy
     "3" -> playSoloLoop
     _ -> fail $ "Invalid player id: " ++ player_id
 
