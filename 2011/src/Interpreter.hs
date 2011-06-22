@@ -4,23 +4,27 @@ import Cards
 import Actions
 import Data.Array
 
+import Control.Monad
+import Control.Monad.State
+
 import Debug.Trace
 
-data Field = Val Int | Func Card | PartialF Card [Field] | Error deriving (Eq, Show)
+-- F function, Par paritial application
+data Field = Val Int | F Card | Par Field Field | Error deriving (Eq, Show)
 
 data Slot = Slot { field :: Field, vitality :: Int} deriving (Eq, Show)
-
 type Slots = Array Int Slot
-
 data World = World { proponent :: Slots , opponent :: Slots } deriving Show
 
-defaultSlot = Slot (Func I) 10000
 
+
+
+defaultSlot = Slot (F I) 10000
 defaultSlots = listArray (0, 255) (repeat defaultSlot)
-
 defaultWorld = World defaultSlots defaultSlots
 
-getVitality slots = map vitality $ elems slots
+
+
 
 filterSlots slots = let ls = assocs slots
                         test (_, f) = f /= defaultSlot
@@ -30,10 +34,28 @@ filterSlots slots = let ls = assocs slots
 showWorld (World pro opp) = "Proponent: " ++ show (filterSlots pro)
                             ++ "\nOpponent: " ++ show (filterSlots opp)
 
--- TODO this should really be a monad !
 
-cardToFunc Zero = Val 0
-cardToFunc card = Func card
+
+putOpp opp = do World pro _ <- get
+                put $ World pro opp
+
+getOpp :: State World Slots
+getOpp = do World _ opp <- get
+            return opp
+
+putPro pro = do World _ opp <- get
+                put $ World pro opp
+
+
+getPro :: State World Slots
+getPro = do World pro _ <- get
+            return pro
+
+
+getVitality slots = map vitality $ elems slots
+
+cardToField Zero = Val 0
+cardToField card = F card
 
 normalizeVal i | i > 65535 = 65535
                | otherwise = i
@@ -42,6 +64,10 @@ validIdx i = i >= 0 && i <= 255
 
 isAlive slots i = vitality (slots ! i ) > 0
 isDead slots i = not $ isAlive slots i
+
+
+
+
 
 data Inter t = Run t Int | IError deriving (Show)
 
@@ -74,23 +100,26 @@ decreaseVit slots idx i = let slot = slots ! idx
                                 | otherwise   -> slots
 
 -- TODO fix number of application
-applyS prop opp f g x nb = let ( h, prop1, opp1) = applyFun prop  opp  f x (nb+1)
-                               ( y, prop2, opp2) = applyFun prop1 opp1 g x (nb+2)
-                           in
-                             applyFun prop2 opp2 h y (nb+3)
+applyS f g x = do h <- applyFun f x
+                  case h of
+                    Error -> return $ Error
+                    _ -> do y <- applyFun g x
+                            case y of
+                              Error -> return $ Error
+                              _ -> applyFun h y
 
--- ! use lazyness
-applyAttack prop opp i j n = let v = vitality $ prop ! i
-                                 new_prop = decreaseVit prop i n
-                             in
-                               if n > v then
-                                   (Error, prop, opp)
-                               else
-                                   case j of
-                                     Val jdx | validIdx jdx -> let dec = quot (9 * n ) 10
-                                                                   new_opp = decreaseVit opp (255 - jdx) dec
-                                                               in ( Func I , new_prop, new_opp)
-                                     _ -> (Error, new_prop, opp)
+applyAttack i j n = do prop <- getPro
+                       let v = vitality $ prop ! i
+                       if n > v then
+                          return Error
+                       else do
+                         pushPro $ decreaseVit prop i n
+                         case j of
+                           Val jdx | validIdx jdx -> do let dec = quot (9 * n ) 10
+                                                        opp <- getOpp
+                                                        putOpp $ decreaseVit opp (255 - jdx) dec
+                                                        return $ F I
+                           _ -> return Error
 
 applyHelp prop opp i j n = let v = vitality $ prop ! i
                                new_prop = decreaseVit prop i n
@@ -101,7 +130,7 @@ applyHelp prop opp i j n = let v = vitality $ prop ! i
                                  case j of
                                    Val jdx | validIdx jdx -> let inc = quot (11 * n ) 10
                                                                  new_new_prop = increaseVit new_prop jdx inc
-                                                             in ( Func I , new_new_prop, opp)
+                                                             in ( F I , new_new_prop, opp)
                                    _ -> (Error, new_prop, opp)
 
 revive prop i = let slot = prop ! i
@@ -111,51 +140,55 @@ revive prop i = let slot = prop ! i
                   else
                       prop
 
-applyFun :: Array Int Slot
-         -> Array Int Slot
-         -> Field
-         -> Field
-         -> Int
-         -> (Field, Array Int Slot, Array Int Slot)
-applyFun prop opp leftF rightF nb_app | nb_app > 1000 = (Error, prop, opp)
-                                      | otherwise =
-                                          case (leftF, rightF) of
-                                            ( Func I, x ) ->  ( x , prop, opp)
-                                            ( Func Succ, Val i ) -> ( Val $ normalizeVal (i+1), prop , opp)
-                                            ( Func Dbl , Val i ) -> ( Val $ normalizeVal (i*1), prop , opp)
-                                            ( Func Get , Val i ) | validIdx i -> ( field $ prop ! i , prop , opp )
-                                            ( Func Put , _ ) -> ( Func I , prop, opp)
-                                            ( Func S, f) -> ( PartialF S [f] , prop, opp )
-                                            ( PartialF S [f] , g ) -> ( PartialF S [f, g ] , prop, opp )
-                                            ( PartialF S [f,g], x ) -> applyS prop opp f g x nb_app
-                                            ( Func K , x ) -> ( PartialF K [x] , prop, opp )
-                                            ( PartialF K [x] , _ ) -> ( x , prop , opp )
-                                            ( Func Inc, Val idx) | validIdx idx  -> (Func I, increaseVit prop idx 1, opp)
-                                            ( Func Dec, Val idx) | validIdx idx ->  (Func I, prop, decreaseVit opp (255-idx) 1 )
-                                            ( Func Attack, i) -> (PartialF Attack [i] , prop, opp)
-                                            ( PartialF Attack [i], j ) -> (PartialF Attack [i,j] , prop , opp)
-                                            ( PartialF Attack [Val i, j], Val n ) | validIdx i -> applyAttack prop opp i j n
-                                            ( Func Help , i ) -> ( PartialF Help [i], prop, opp)
+
+maxVal = 65535
+
+applyFun leftF rightF =
+    case (leftF, rightF) of
+      (F I, x ) -> return x
+      ( F Succ, Val i ) -> return $ Val $ max (i+1) maxVal
+      ( F Dbl , Val i ) -> return $ Val $ max (i*2) maxVal
+      ( F Get , Val i ) | validIdx i -> do prop <- getPro
+                                           return  $ field $ prop ! i
+      ( F Put , _ ) -> return $ F I
+      ( F S, f) -> return $ Par (F S) f
+      ( x@(Par (F S) _ ) , g ) -> return $ Par x g
+      ( Par (Par (F S) f ) g , x ) -> applyS f g x
+      ( F K , x ) -> return $ Par (F K) x
+      ( Par (F K) x, _ ) -> return x
+      ( F Inc, Val idx) | validIdx idx -> do prop <- getPro
+                                             let new_prop = increaseVit prop idx 1
+                                             putPro new_prop
+                                             return $ F I
+      ( F Dec, Val idx) | validIdx idx -> do opp <- getOpp
+                                             let new_opp = decreaseVit opp (255-idx) 1
+                                             putOpp new_opp
+                                             return $ F I
+      ( F Attack, i) -> return $ P (F Attack) i
+      ( a@(P (F Attack) _) , j ) -> return $ P a j
+      ( P ( P (F Attack) (Val i)) j , Val n ) | validIdx i -> applyAttack i j n
+                                            ( F Help , i ) -> ( PartialF Help [i], prop, opp)
                                             ( PartialF Help [i], j) -> (PartialF Help [i,j], prop, opp)
                                             ( PartialF Help [Val i, j ], Val n ) | validIdx i -> applyHelp prop opp i j n
-                                            ( Func Copy, Val i) | validIdx i -> ( field $ opp ! i, prop , opp )
-                                            ( Func Revive, Val i ) | validIdx i -> ( Func I, revive prop i, opp )
-                                            ( Func Zombie, i ) -> (PartialF Zombie [i], prop, opp)
-                                            ( PartialF Zombie [Val i], x ) | validIdx i && isDead opp i -> ( Func I, prop, opp // [(i, Slot x (-1) )] )
+                                            ( F Copy, Val i) | validIdx i -> ( field $ opp ! i, prop , opp )
+                                            ( F Revive, Val i ) | validIdx i -> ( F I, revive prop i, opp )
+                                            ( F Zombie, i ) -> (PartialF Zombie [i], prop, opp)
+                                            ( PartialF Zombie [Val i], x ) | validIdx i && isDead opp i -> ( F I, prop, opp // [(i, Slot x (-1) )] )
                                             _ -> (Error, prop, opp)
 
 
-cleanRes Error = trace " !! Error !! " Func I
+cleanRes Error = trace " !! Error !! " F I
 cleanRes f = f
 
 updateProponent :: World -> Move -> World
-updateProponent (World prop opp) (Move side card idx)
-    = let fun = cardToFunc card
+updateProponent w@(World prop opp) (Move side card idx)
+    = let fun = cardToField card
           slot = prop ! idx
           -- TODO check if dead
-          (tmp_res, newProp, newOpp) = case side of
-                                         LeftApp  -> applyFun prop opp fun ( field slot) 1
-                                         RightApp -> applyFun prop opp (field slot) fun  1
+          eval = case side of
+                   LeftApp  -> applyFun fun ( field slot)
+                   RightApp -> applyFun (field slot) fun
+          (tmp_res, World newProp newOpp) = runState eval w
           res = cleanRes tmp_res
           new_slot = slot { field = res }
           -- trace ("fun: " ++ show fun
